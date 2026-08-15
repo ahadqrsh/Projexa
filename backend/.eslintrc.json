@@ -1,0 +1,22 @@
+{
+  "env": { "node": true, "es2023": true, "jest": true },
+  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "prefer-const": "error",
+    "eqeqeq": ["error", "smart"],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["**/controllers/*"],
+            "message": "Dependency rule violation: services and repositories must never import controllers."
+          }
+        ]
+      }
+    ]
+  }
+}
