@@ -8,6 +8,7 @@
  */
 
 import jwt from 'jsonwebtoken';
+import crypto from 'node:crypto';
 import env from '../config/env.js';
 import ApiError from './ApiError.js';
 
@@ -20,9 +21,19 @@ export const signAccessToken = (user) =>
     { expiresIn: env.JWT_ACCESS_EXPIRES_IN, issuer: 'apm-api' }
   );
 
+/**
+ * `jti` matters more than it looks: without it, this payload is just
+ * { sub, familyId, type } plus jsonwebtoken's automatic `iat` — which only
+ * has SECOND granularity. Two refresh calls for the same session within the
+ * same wall-clock second (trivial to trigger with a couple of quick page
+ * reloads) then sign to the exact same JWT string, hash to the exact same
+ * value, and the second INSERT hits RefreshToken's unique tokenHash index
+ * and throws a 409. A random jti makes every issued token unique regardless
+ * of timing, which is what actually fixes that 409 rather than just hiding it.
+ */
 export const signRefreshToken = (user, familyId) =>
   jwt.sign(
-    { sub: String(user._id), familyId, type: TOKEN_TYPES.REFRESH },
+    { sub: String(user._id), familyId, jti: crypto.randomUUID(), type: TOKEN_TYPES.REFRESH },
     env.JWT_REFRESH_SECRET,
     { expiresIn: env.JWT_REFRESH_EXPIRES_IN, issuer: 'apm-api' }
   );

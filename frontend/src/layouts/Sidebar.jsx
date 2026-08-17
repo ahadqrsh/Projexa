@@ -20,6 +20,7 @@ import {
   selectMobileNavOpen,
 } from '@/features/ui/uiSlice';
 import ProgressBar from '@/components/ui/ProgressBar';
+import Logo from '@/components/ui/Logo';
 
 const navItems = [
   { to: paths.dashboard, label: 'Dashboard', icon: LayoutDashboard },
@@ -86,11 +87,10 @@ const SidebarContent = ({ collapsed, onNavigate }) => {
         onClick={onNavigate}
         className={cn('flex items-center gap-2.5 px-1', collapsed && 'justify-center')}
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-accent-600 font-mono text-xs font-bold text-white shadow-glow">
-          PX
-        </span>
-        {!collapsed && (
-          <span className="truncate text-sm font-bold text-content-primary">Projexa</span>
+        {collapsed ? (
+          <Logo iconOnly size={32} className="shrink-0 rounded-lg" />
+        ) : (
+          <Logo size={36} className="shrink-0" />
         )}
       </Link>
 

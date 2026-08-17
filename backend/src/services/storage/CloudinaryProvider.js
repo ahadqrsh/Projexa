@@ -26,7 +26,13 @@ class CloudinaryProvider extends StorageProvider {
         (error, result) => {
           if (error) {
             logger.error(`Cloudinary upload failed: ${error.message}`);
-            return reject(ApiError.internal('File upload failed. Please try again.'));
+            // `cause` keeps Cloudinary's real reason (bad credentials, corrupt
+            // image, rejected transformation, etc.) attached to the error object
+            // for server-side logs/stack traces, without leaking it to the
+            // client — the response body still gets the generic message below.
+            return reject(
+              ApiError.internal('File upload failed. Please try again.', { cause: error })
+            );
           }
           return resolve({
             url: result.secure_url,

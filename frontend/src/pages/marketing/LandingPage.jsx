@@ -11,6 +11,7 @@ import {
   MessageSquareQuote,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import Logo from '@/components/ui/Logo';
 import TiltCard from '@/components/three/TiltCard';
 import ParticleField from '@/components/three/ParticleField';
 import AuroraBackdrop from '@/components/three/AuroraBackdrop';
@@ -38,10 +39,7 @@ const LandingPage = () => {
 
       <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-6">
         <Link to={paths.landing} className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-accent-600 font-mono text-xs font-bold text-white shadow-glow">
-            PX
-          </span>
-          <span className="font-bold text-content-primary">Projexa</span>
+          <Logo size={36} />
         </Link>
 
         <nav className="flex items-center gap-3">

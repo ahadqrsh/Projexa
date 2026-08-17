@@ -86,12 +86,22 @@ export const login = async ({ email, password }, context = {}) => {
 };
 
 /**
+ * Presenting an ALREADY-revoked token is ambiguous, not automatically theft:
+ * it's also exactly what happens when two legitimate requests for the same
+ * session overlap (a couple of quick page reloads, two tabs refreshing near
+ * simultaneously) — the first rotates the token, and the second then
+ * legitimately presents the now-superseded one a moment later. Only treat it
+ * as theft once it's stale enough that a genuine race is implausible.
+ */
+const REUSE_GRACE_MS = 10_000;
+
+/**
  * Refresh with rotation AND reuse detection.
  *
- * Presenting an already-revoked token means a token was replayed — almost
- * certainly stolen — so we revoke the entire family. The legitimate user is
- * logged out too, which is the correct trade: a forced re-login beats a silent
- * session hijack.
+ * Presenting an already-revoked token that is OUTSIDE the grace window above
+ * means a token was replayed — almost certainly stolen — so we revoke the
+ * entire family. The legitimate user is logged out too, which is the correct
+ * trade: a forced re-login beats a silent session hijack.
  */
 export const refresh = async (rawToken, context = {}) => {
   if (!rawToken) throw ApiError.unauthorized('Refresh token missing');
@@ -103,11 +113,22 @@ export const refresh = async (rawToken, context = {}) => {
   if (!stored) throw ApiError.unauthorized('Refresh token is not recognised');
 
   if (stored.isRevoked) {
-    await refreshTokenRepository.revokeFamily(stored.familyId);
-    logger.warn(
-      `Refresh token reuse detected for user ${stored.user} — family ${stored.familyId} revoked`
+    const withinGrace =
+      stored.revokedAt && Date.now() - stored.revokedAt.getTime() < REUSE_GRACE_MS;
+
+    if (!withinGrace) {
+      await refreshTokenRepository.revokeFamily(stored.familyId);
+      logger.warn(
+        `Refresh token reuse detected for user ${stored.user} — family ${stored.familyId} revoked`
+      );
+      throw ApiError.unauthorized('Session security issue detected. Please sign in again.');
+    }
+
+    // Benign race, not theft: fall through and issue this caller its own
+    // fresh pair in the same family, same as the non-revoked path below.
+    logger.debug(
+      `Refresh token reused within grace window for user ${stored.user} — treated as a benign race, not theft`
     );
-    throw ApiError.unauthorized('Session security issue detected. Please sign in again.');
   }
 
   if (stored.expiresAt < new Date()) throw ApiError.unauthorized('Session expired');

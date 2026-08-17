@@ -30,8 +30,18 @@ const base = {
   skip: () => env.isTest, // limiters would make the integration suite flaky
 };
 
+// Cheap, idempotent, UI-driven reads whose call frequency the client controls,
+// not the user — a generation job is polled every 2s for however long it runs.
+// generationLimiter already deliberately excludes this route (see
+// generation.routes.js); apiLimiter needs to make the same exception, or the
+// app-wide 300-requests-per-15-minutes budget gets consumed by polling alone
+// within a couple of minutes of one generation run, well before a real abuse
+// pattern would ever trip it.
+const isPollingRoute = (req) => /\/generate\/status\//.test(req.originalUrl ?? req.url ?? '');
+
 export const apiLimiter = rateLimit({
   ...base,
+  skip: (req) => env.isTest || isPollingRoute(req),
   windowMs: minutes(env.RATE_LIMIT_WINDOW_MINUTES),
   max: env.RATE_LIMIT_MAX_REQUESTS,
   keyGenerator: keyByUserOrIp,
@@ -40,6 +50,13 @@ export const apiLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   ...base,
+  // In production this is real brute-force protection. In local development
+  // it just punishes the developer: a handful of typo'd passwords or a burst
+  // of manual testing during one session reliably exhausts 10 attempts / 15
+  // minutes, and the in-memory counter doesn't know the difference between
+  // "attacker" and "student debugging their own login form" — so relax it
+  // outside production rather than making every dev iterate around a 429.
+  skip: () => env.isTest || !env.isProduction,
   windowMs: minutes(15),
   max: env.AUTH_RATE_LIMIT_MAX,
   skipSuccessfulRequests: true, // only failed attempts count — protects against brute force

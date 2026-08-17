@@ -107,13 +107,6 @@ const LoginPage = () => {
           Create an account
         </Link>
       </p>
-
-      <div className="mt-8 rounded-xl border border-subtle bg-surface/60 p-4">
-        <p className="text-xs font-medium text-content-secondary">Demo account</p>
-        <p className="mt-1.5 font-mono text-xs text-content-muted">
-          student@apm.dev · Password@123
-        </p>
-      </div>
     </motion.div>
   );
 };

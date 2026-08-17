@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import ParticleField from '@/components/three/ParticleField';
 import AuroraBackdrop from '@/components/three/AuroraBackdrop';
+import Logo from '@/components/ui/Logo';
 import { paths } from '@/routes/paths';
 
 const highlights = [
@@ -21,10 +22,7 @@ const AuthLayout = () => (
 
       <div className="relative flex h-full flex-col justify-between p-12">
         <Link to={paths.landing} className="inline-flex items-center gap-2.5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-accent-600 font-mono text-sm font-bold text-white shadow-glow">
-            PX
-          </span>
-          <span className="text-lg font-bold text-content-primary">Projexa</span>
+          <Logo size={40} />
         </Link>
 
         <motion.div
@@ -69,10 +67,7 @@ const AuthLayout = () => (
       <AuroraBackdrop className="lg:hidden" showGrid={false} />
       <div className="relative w-full max-w-md">
         <Link to={paths.landing} className="mb-8 inline-flex items-center gap-2.5 lg:hidden">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-accent-600 font-mono text-xs font-bold text-white">
-            PX
-          </span>
-          <span className="font-bold text-content-primary">Projexa</span>
+          <Logo size={36} />
         </Link>
         <Outlet />
       </div>
