@@ -48,6 +48,11 @@ export const endpoints = {
     versions: (projectId, type) => `/projects/${projectId}/artifacts/${type}/versions`,
     restore: (projectId, type, version) => `/projects/${projectId}/artifacts/${type}/restore/${version}`,
   },
+  diagrams: {
+    list: (projectId) => `/projects/${projectId}/diagrams`,
+    byType: (projectId, type) => `/projects/${projectId}/diagrams/${type}`,
+    generate: (projectId, type) => `/projects/${projectId}/diagrams/${type}/generate`,
+  },
   meta: { constants: '/meta/constants' },
   health: '/health',
 };

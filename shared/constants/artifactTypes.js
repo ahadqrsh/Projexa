@@ -67,3 +67,5 @@ export const artifactTypeToSlug = (type) => String(type).toLowerCase().replace(/
 
 export const diagramTypeFromSlug = (slug) =>
   DIAGRAM_TYPE_LIST.find((t) => t.toLowerCase().replace(/_/g, '-') === String(slug).toLowerCase());
+
+export const diagramTypeToSlug = (type) => String(type).toLowerCase().replace(/_/g, '-');

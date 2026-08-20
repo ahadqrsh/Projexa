@@ -16,6 +16,7 @@ import {
   RotateCcw,
   Download,
   History,
+  Waypoints,
 } from 'lucide-react';
 import PageTransition from '@/components/motion/PageTransition';
 import Button from '@/components/ui/Button';
@@ -32,8 +33,10 @@ import {
   clearActive,
   selectActiveProject,
   selectActiveArtifacts,
+  selectActiveDiagrams,
   selectDetailStatus,
 } from '@/features/projects/projectSlice';
+import { DIAGRAM_TYPE_LIST, diagramLabel } from '@/features/diagrams/diagramTypes';
 import { projectApi } from '@/features/projects/projectApi';
 import {
   startGeneration,
@@ -71,6 +74,7 @@ const ProjectDetailPage = () => {
   const navigate = useNavigate();
   const project = useSelector(selectActiveProject);
   const artifacts = useSelector(selectActiveArtifacts);
+  const diagrams = useSelector(selectActiveDiagrams);
   const detailStatus = useSelector(selectDetailStatus);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -190,6 +194,7 @@ const ProjectDetailPage = () => {
   }
 
   const artifactByType = Object.fromEntries(artifacts.map((a) => [a.type, a]));
+  const diagramByType = Object.fromEntries(diagrams.map((d) => [d.type, d]));
   const generatedCount = artifacts.filter((a) => a.status === 'completed').length;
   const percent = Math.round((generatedCount / 16) * 100);
   const remaining = daysUntil(project.deadline);
@@ -424,6 +429,60 @@ const ProjectDetailPage = () => {
             </StaggerList>
           </div>
         ))}
+      </section>
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold text-content-primary">Diagrams</h2>
+          <p className="text-xs text-content-muted">
+            ER and UML diagrams, generated as Mermaid source and rendered in your browser.
+          </p>
+        </div>
+
+        <StaggerList className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {DIAGRAM_TYPE_LIST.map((type) => {
+            const diagram = diagramByType[type];
+            const done = diagram?.status === 'completed';
+            const failed = diagram?.status === 'failed';
+
+            return (
+              <StaggerItem key={type}>
+                <Link
+                  to={paths.diagram(id, type)}
+                  className={cn(
+                    'block w-full rounded-xl border p-4 text-left transition-all duration-300',
+                    done
+                      ? 'border-primary-500/30 bg-primary-500/5 hover:border-primary-500/60'
+                      : 'border-dashed border-subtle bg-elevated/40 hover:border-primary-500/40',
+                    failed && 'border-danger/40 bg-danger/5'
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-content-primary">
+                      <Waypoints className="h-3.5 w-3.5 text-primary-400" />
+                      {diagramLabel(type)}
+                    </p>
+                    {failed ? (
+                      <Badge variant="danger" dot>
+                        <RotateCcw className="h-3 w-3" /> Retry
+                      </Badge>
+                    ) : done ? (
+                      <Badge variant="success" dot>
+                        Ready
+                      </Badge>
+                    ) : (
+                      <Badge>Not generated</Badge>
+                    )}
+                  </div>
+                  {done && diagram.version > 1 && (
+                    <p className="mt-2 font-mono text-xs text-content-muted">v{diagram.version}</p>
+                  )}
+                  {!done && !failed && <p className="mt-2 text-xs text-content-muted">Click to generate</p>}
+                </Link>
+              </StaggerItem>
+            );
+          })}
+        </StaggerList>
       </section>
 
       <ConfirmDialog

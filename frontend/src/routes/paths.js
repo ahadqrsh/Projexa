@@ -12,6 +12,7 @@ export const paths = {
   project: (id = ':id') => `/projects/${id}`,
   editProject: (id = ':id') => `/projects/${id}/edit`,
   artifact: (id = ':id', type = ':type') => `/projects/${id}/artifacts/${type}`,
+  diagram: (id = ':id', type = ':type') => `/projects/${id}/diagrams/${type}`,
 
   profile: '/profile',
   settings: '/settings',

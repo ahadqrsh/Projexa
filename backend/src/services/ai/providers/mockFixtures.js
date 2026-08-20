@@ -538,6 +538,93 @@ const fixtures = {
     ],
     cicdNotes: 'A minimal GitHub Actions workflow that runs lint and tests on every pull request is sufficient here; Vercel and Render both auto-deploy on push to main, so no separate deploy step needs to be scripted.',
   }),
+
+  /**
+   * Diagram fixtures. Same map, same getMockFixture() lookup as the 16
+   * artifact types above — DIAGRAM_TYPES keys never collide with
+   * ARTIFACT_TYPES keys, so no separate mock path was needed for these.
+   */
+  ERD: (p) => ({
+    title: `${titleOf(p)} — Entity-Relationship Diagram`,
+    mermaid: `erDiagram
+    USER ||--o{ PROJECT : owns
+    PROJECT ||--o{ ARTIFACT : generates
+    USER {
+        string id PK
+        string name
+        string email
+        string role
+    }
+    PROJECT {
+        string id PK
+        string title
+        string domain
+        string status
+    }
+    ARTIFACT {
+        string id PK
+        string type
+        string status
+        number version
+    }`,
+  }),
+
+  UML_CLASS: (p) => ({
+    title: `${titleOf(p)} — Class Diagram`,
+    mermaid: `classDiagram
+    class User {
+        +String name
+        +String email
+        -String passwordHash
+        +login() Boolean
+    }
+    class Project {
+        +String title
+        +String domain
+        +generate() void
+    }
+    User "1" --> "*" Project : owns`,
+  }),
+
+  UML_SEQUENCE: (p) => ({
+    title: `${titleOf(p)} — Sequence Diagram`,
+    mermaid: `sequenceDiagram
+    actor User
+    participant Client
+    participant API
+    participant DB
+    User->>Client: Submit request
+    Client->>API: POST /api/v1/resource
+    API->>DB: query
+    DB-->>API: result
+    API-->>Client: 200 OK`,
+  }),
+
+  UML_USECASE: (p) => ({
+    title: `${titleOf(p)} — Use Case Diagram`,
+    mermaid: `flowchart LR
+    Admin([Admin])
+    User([User])
+    subgraph System[" "]
+        UC1(["Manage Records"])
+        UC2(["View Dashboard"])
+        UC3(["Export Report"])
+    end
+    Admin --> UC1
+    User --> UC2
+    User --> UC3`,
+  }),
+
+  UML_ACTIVITY: () => ({
+    title: 'Core Workflow — Activity Diagram',
+    mermaid: `flowchart TD
+    Start([Start]) --> A[Submit input]
+    A --> B{Valid?}
+    B -- No --> A
+    B -- Yes --> C[Process request]
+    C --> D[Return result]
+    D --> End([End])`,
+  }),
 };
 
 /** Generic fallback so an unimplemented module still round-trips through the pipeline. */

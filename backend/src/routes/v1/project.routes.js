@@ -22,9 +22,10 @@ import {
 } from '../../validators/project.validator.js';
 import { exportLimiter } from '../../config/rateLimiters.js';
 
-// Nested routers (generation, artifacts) need access to :projectId from this router.
+// Nested routers (generation, artifacts, diagrams) need access to :projectId from this router.
 import generationRoutes from './generation.routes.js';
 import artifactRoutes from './artifact.routes.js';
+import diagramRoutes from './diagram.routes.js';
 
 const router = Router();
 
@@ -46,6 +47,7 @@ router.get('/', validate([...paginationQuery, ...listProjectsValidator]), projec
 // Nested resources — mounted before /:id so they resolve first.
 router.use('/:projectId/generate', generationRoutes);
 router.use('/:projectId/artifacts', artifactRoutes);
+router.use('/:projectId/diagrams', diagramRoutes);
 
 router
   .route('/:id')

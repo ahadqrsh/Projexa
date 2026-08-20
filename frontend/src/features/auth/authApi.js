@@ -18,13 +18,18 @@ export const authApi = {
   uploadAvatar: (file) => {
     const form = new FormData();
     form.append('avatar', file);
-    // No explicit Content-Type here: axios detects a FormData body and lets
-    // the browser set 'multipart/form-data; boundary=...' itself. Setting it
-    // manually (as this used to) overrides the instance's default JSON
-    // header with a literal 'multipart/form-data' and NO boundary, which
-    // corrupts the body — multer still extracts *a* file, but Cloudinary
-    // then rejects the garbled bytes and the upload 500s.
-    return api.patch(endpoints.users.avatar, form).then(unwrap);
+    // The axios instance sets a default 'Content-Type: application/json'
+    // header for every request. Axios is supposed to auto-delete that for a
+    // FormData body so the browser can set its own 'multipart/form-data;
+    // boundary=...' header, but in practice the instance-level default wins
+    // and the request goes out as application/json — multer then never sees
+    // a multipart body at all, so req.file is undefined ("No image file was
+    // provided"). Explicitly unsetting it here forces axios to drop the
+    // header entirely, which is what actually lets the browser generate the
+    // correct multipart header with a boundary.
+    return api
+      .patch(endpoints.users.avatar, form, { headers: { 'Content-Type': undefined } })
+      .then(unwrap);
   },
   removeAvatar: () => api.delete(endpoints.users.avatar).then(unwrap),
   sessions: () => api.get(endpoints.auth.sessions).then(unwrap),

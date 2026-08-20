@@ -20,6 +20,7 @@ const ProjectsPage = lazy(() => import('@/pages/dashboard/ProjectsPage'));
 const NewProjectPage = lazy(() => import('@/pages/dashboard/NewProjectPage'));
 const ProjectDetailPage = lazy(() => import('@/pages/dashboard/ProjectDetailPage'));
 const ArtifactViewerPage = lazy(() => import('@/pages/dashboard/ArtifactViewerPage'));
+const DiagramViewerPage = lazy(() => import('@/pages/dashboard/DiagramViewerPage'));
 const EditProjectPage = lazy(() => import('@/pages/dashboard/EditProjectPage'));
 const ProfilePage = lazy(() => import('@/pages/dashboard/ProfilePage'));
 const SettingsPage = lazy(() => import('@/pages/dashboard/SettingsPage'));
@@ -65,6 +66,7 @@ const router = createBrowserRouter([
               { path: paths.newProject, element: withSuspense(<NewProjectPage />) },
               { path: paths.project(), element: withSuspense(<ProjectDetailPage />) },
               { path: paths.artifact(), element: withSuspense(<ArtifactViewerPage />) },
+              { path: paths.diagram(), element: withSuspense(<DiagramViewerPage />) },
               { path: paths.editProject(), element: withSuspense(<EditProjectPage />) },
               { path: paths.profile, element: withSuspense(<ProfilePage />) },
               { path: paths.settings, element: withSuspense(<SettingsPage />) },

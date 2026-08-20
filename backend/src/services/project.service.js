@@ -5,6 +5,7 @@
 import ApiError from '../utils/ApiError.js';
 import { projectRepository } from '../repositories/project.repository.js';
 import { artifactRepository } from '../repositories/artifact.repository.js';
+import { diagramRepository } from '../repositories/diagram.repository.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { getStorage } from './storage/storageFactory.js';
 import { sendMentorInviteEmail } from './mail/mail.service.js';
@@ -106,19 +107,24 @@ export const listAssignedToMentor = async (mentorId, query) => {
 
 /**
  * Detail view returns a per-module status summary alongside the project so the
- * workspace grid renders in ONE request instead of 16.
+ * workspace grid renders in ONE request instead of 16 (or, with diagrams, 21).
  */
 export const getProjectDetail = async (project) => {
-  const artifacts = await artifactRepository.findAllForProject(project._id, {
-    select: 'type status version isStale isManuallyEdited generatedAt error',
-  });
+  const [artifacts, diagrams] = await Promise.all([
+    artifactRepository.findAllForProject(project._id, {
+      select: 'type status version isStale isManuallyEdited generatedAt error',
+    }),
+    diagramRepository.findAllForProject(project._id, {
+      select: 'type title status version isStale isManuallyEdited generatedAt error',
+    }),
+  ]);
 
   const populated = await project.populate([
     { path: 'owner', select: 'name email avatar college' },
     { path: 'mentors', select: 'name email avatar' },
   ]);
 
-  return { project: populated, artifacts };
+  return { project: populated, artifacts, diagrams };
 };
 
 const titleCase = (v = '') => String(v).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());

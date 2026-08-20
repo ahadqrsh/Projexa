@@ -9,6 +9,7 @@ const initialState = {
   filters: initialFilters,
   active: null,
   activeArtifacts: [],
+  activeDiagrams: [],
   stats: null,
   listStatus: 'idle',
   detailStatus: 'idle',
@@ -104,6 +105,7 @@ const projectSlice = createSlice({
     clearActive: (state) => {
       state.active = null;
       state.activeArtifacts = [];
+      state.activeDiagrams = [];
       state.detailStatus = 'idle';
     },
   },
@@ -133,6 +135,7 @@ const projectSlice = createSlice({
         state.detailStatus = 'succeeded';
         state.active = action.payload.project;
         state.activeArtifacts = action.payload.artifacts ?? [];
+        state.activeDiagrams = action.payload.diagrams ?? [];
       })
       .addCase(fetchProject.rejected, (state, action) => {
         state.detailStatus = 'failed';
@@ -185,6 +188,7 @@ export const selectProjectMeta = (state) => state.projects.meta;
 export const selectProjectFilters = (state) => state.projects.filters;
 export const selectActiveProject = (state) => state.projects.active;
 export const selectActiveArtifacts = (state) => state.projects.activeArtifacts;
+export const selectActiveDiagrams = (state) => state.projects.activeDiagrams;
 export const selectProjectStats = (state) => state.projects.stats;
 export const selectListStatus = (state) => state.projects.listStatus;
 export const selectDetailStatus = (state) => state.projects.detailStatus;
